@@ -1,0 +1,65 @@
+#app {
+  input.form-control {
+    &.input-xs {
+      font-size: 0.75rem;
+      line-height: 1.25em;
+      border-radius: 2px;
+      padding: 3px 6px;
+    }
+
+    &.input-right {
+      text-align: right;
+    }
+  }
+
+  td.label-list {
+    max-width: 250px;
+    .input-xs {
+      width: 45px;
+      display: inline-block;
+      margin: 1px 3px;
+    }
+  }
+
+  label {
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+  }
+
+
+  .std-quantity-input {
+    max-width: 7rem;
+  }
+
+  .item-labels {
+    max-width: 25rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    input.input-xs {
+      max-width: 5em;
+      margin: 0.25rem;
+    }
+
+    .input-group {
+      width: 10rem;
+      line-height: 0.75rem;
+      padding: 0.25rem;
+
+      .input-group-text {
+        font-size: 0.75rem;
+        line-height: 0.75rem;
+        border-right-width: 0;
+      }
+
+      .form-control {
+        margin: 0;
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+      }
+    }
+  }
+}
+

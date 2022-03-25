@@ -1,0 +1,50 @@
+#app input.form-control.input-xs {
+  font-size: 0.75rem;
+  line-height: 1.25em;
+  border-radius: 2px;
+  padding: 3px 6px;
+}
+#app input.form-control.input-right {
+  text-align: right;
+}
+#app td.label-list {
+  max-width: 250px;
+}
+#app td.label-list .input-xs {
+  width: 45px;
+  display: inline-block;
+  margin: 1px 3px;
+}
+#app label input[type=checkbox] {
+  margin-right: 10px;
+}
+#app .std-quantity-input {
+  max-width: 7rem;
+}
+#app .item-labels {
+  max-width: 25rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+#app .item-labels input.input-xs {
+  max-width: 5em;
+  margin: 0.25rem;
+}
+#app .item-labels .input-group {
+  width: 10rem;
+  line-height: 0.75rem;
+  padding: 0.25rem;
+}
+#app .item-labels .input-group .input-group-text {
+  font-size: 0.75rem;
+  line-height: 0.75rem;
+  border-right-width: 0;
+}
+#app .item-labels .input-group .form-control {
+  margin: 0;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+/*# sourceMappingURL=styles.css.map */
