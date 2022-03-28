@@ -26,7 +26,25 @@ export const selectPODetail = createSelector(
         return [];
     }
     return po.detail
+        .filter(row => row.ItemType === '1')
         .filter(row => row.RequiredDate === date)
         .sort(detailSorter(sort as POSorterProps));
 });
 
+export const selectPODetailLine = (lineKey:string) => (state:RootState):PurchaseOrderDetail|null => {
+    const detail = state.po.purchaseOrder?.detail;
+    if (!detail) {
+        return null;
+    }
+    const [row] = detail.filter(row => row.LineKey === lineKey);
+    return row || null;
+}
+
+export const selectSelectedLineKeys = createSelector([selectPurchaseOrder], (po) => {
+    if (!po) {
+        return [];
+    }
+    return po.detail.filter(line => line.selected).map(line => line.LineKey);
+})
+
+export const selectReceiptDate = (state:RootState) => state.po.receiptDate;

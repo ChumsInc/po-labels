@@ -8,23 +8,29 @@ import LabelStandardQtyInput from "./LabelStandardQtyInput";
 import ItemLabels from "./ItemLabels";
 import {PODetailField, PurchaseOrderDetail} from "./types";
 import {labelCount} from "./utils";
+import OverstockInfo from "./OverstockInfo";
+import SelectForPrintingCheckbox from "./SelectForPrintingCheckbox";
+import SelectAllCheckbox from "./SelectAllCheckbox";
+import ItemDescription from "./ItemDescription";
+import LabelTotalInfo from "./LabelTotalInfo";
 
 //@TODO: need to add BTX items,
 
 const tableFields:PODetailField[] = [
-    {field: 'selected', title: 'Select', render: (row) => (<span>X</span>)},
+    {field: 'selected', title: (<SelectAllCheckbox />),
+        render: (row:PurchaseOrderDetail) => (<SelectForPrintingCheckbox lineKey={row.LineKey} disabled={!row.labelData?.labelQuantities.length} />)},
     {field: 'LineKey', title: 'Line Key', sortable: true},
     {field: 'WarehouseCode', title: 'Warehouse', sortable: true},
     {field: 'ItemCode', title: 'Item', sortable: true},
-    {field: 'ItemCodeDesc', title: 'Description', sortable: true},
-    {field: 'RequiredDate', title: 'Req. Date', render: (row) => (<LabelDate date={row.RequiredDate} />)},
-    {field: 'QuantityOrdered', title: 'Qty in BTX', render: (row) => (<>@TODO</>)},
+    {field: 'ItemCodeDesc', title: 'Description', sortable: true, render: (row) => (<ItemDescription row={row}/>)},
+    // {field: 'RequiredDate', title: 'Req. Date', render: (row) => (<LabelDate date={row.RequiredDate} />)},
+    {field: 'overstock', title: 'Qty in BTX', render: (row:PurchaseOrderDetail) => (<OverstockInfo overstock={row.overstock} />), sortable: true},
     {field: 'QuantityOrdered', title: 'Ordered', sortable: true, className: 'text-end', render: (row) => (<>{numeral(row.QuantityOrdered).format('0,0')}</>)},
-    {field: 'QuantityOrdered', title: 'Std Qty', render: (row) => (<LabelStandardQtyInput lineKey={row.LineKey} lineQuantity={row.QuantityOrdered}/>)},
-    {field: 'labelData', title: 'Labels', render: (row) => (<ItemLabels lineKey={row.LineKey} labels={row.labelData?.labelQuantities || []} />)},
+    {field: 'QuantityOrdered', title: 'Std Qty', render: (row) => (<LabelStandardQtyInput lineKey={row.LineKey} lineQuantity={row.QuantityReceived ? row.QuantityReceived : row.QuantityOrdered}/>)},
+    {field: 'labelData', title: 'Box Labels', render: (row) => (<ItemLabels lineKey={row.LineKey} labelData={row.labelData} quantityOrdered={row.QuantityOrdered} />)},
+    {field: 'labelData', title: 'Label Total', render: (row) => (<LabelTotalInfo labelData={row.labelData}/>)},
     {field: 'labelData', title: 'Receipt Date', sortable: true,render: (row) => (<LabelDate date={row.labelData?.ReceiptDate} />)},
     {field: 'QuantityReceived', title: 'Received', sortable: true, className: 'text-end', render: (row) => (<>{numeral(row.QuantityReceived).format('0,0')}</>)},
-    {field: 'labelData', title: 'Boxes', className: 'text-end', render: (row:PurchaseOrderDetail) => numeral(labelCount(row)).format('0,0')},
 ];
 
 const rowClassName = (row:PurchaseOrderDetail) => {

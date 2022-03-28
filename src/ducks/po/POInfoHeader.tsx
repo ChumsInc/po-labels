@@ -14,10 +14,17 @@ const POInfoHeader:React.FC = () => {
         return <Alert color="info" >Select a purchase order.</Alert>
     }
     return (
-        <div className="mt-3">
-            <h3 className="d-inline-block me-5">PO# {po.PurchaseOrderNo}</h3>
-            <h4 className="d-inline-block me-3">{po.APDivisionNo}-{po.VendorNo}</h4>
-            <span>{po.PurchaseName}</span>
+        <div className="row g-3">
+            <div className="col-auto">
+                <h3 className="d-inline-block me-5">PO# {po.PurchaseOrderNo}</h3>
+            </div>
+            <div className="col">
+                <div>
+                    <h4 className="d-inline-block me-3">{po.APDivisionNo}-{po.VendorNo}</h4>
+                    <span>{po.PurchaseName}</span>
+                </div>
+                <div className="text-muted">{po.Comment}</div>
+            </div>
         </div>
     )
 }

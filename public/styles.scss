@@ -28,25 +28,52 @@
   }
 
 
+  .os-quantity {
+    padding-left: 0.5rem;
+  }
+
   .std-quantity-input {
-    max-width: 7rem;
+    max-width: 9rem;
+    min-width: 7rem;
+  }
+
+  small.receipt-date {
+    font-size: 0.675rem;
+    line-height: 0.675rem;
+    display: block;
   }
 
   .item-labels {
-    max-width: 25rem;
+    max-width: 27rem;
+    min-width: 8rem;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    @media (min-width: 992px) {
+      min-width: 20rem;
+    }
+
+    @media (min-width: 1200px) {
+      min-width: 25rem;
+    }
+
 
     input.input-xs {
-      max-width: 5em;
       margin: 0.25rem;
+      text-align: right;
     }
 
     .input-group {
-      width: 10rem;
       line-height: 0.75rem;
       padding: 0.25rem;
+      flex: 25% 0 0;
+      flex-wrap: nowrap;
+      @media (max-width: 767.98px) {
+        flex: 100% 0 0;
+      }
+      @media (max-width: 1024px) {
+        flex: 33.333% 0 0;
+      }
 
       .input-group-text {
         font-size: 0.75rem;
@@ -59,6 +86,10 @@
         border-bottom-left-radius: 0;
         border-top-left-radius: 0;
       }
+    }
+
+    .btn-xs {
+      margin: 0.25rem;
     }
   }
 }

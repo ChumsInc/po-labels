@@ -7,6 +7,8 @@ export const detailSorter = ({field, ascending}:POSorterProps) => (a:PurchaseOrd
     case 'QuantityReceived':
     case 'UnitOfMeasureConvFactor':
         return (a[field] - b[field]) * (ascending ? 1 : -1);
+    case 'overstock':
+        return ((a.overstock?.QuantityOnHand || 0) - (b.overstock?.QuantityOnHand || 0)) * (ascending ? 1 : -1);
     case 'labelData':
     case 'selected':
         return 0;
