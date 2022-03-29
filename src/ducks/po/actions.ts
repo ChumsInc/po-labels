@@ -26,7 +26,7 @@ import {
     selectPurchaseOrderNo,
     selectReceiptDate
 } from "./selectors";
-import {dismissContextAlert, fetchJSON, fetchPOST} from "chums-ducks";
+import {addAlertAction, dismissContextAlert, fetchJSON, fetchPOST} from "chums-ducks";
 
 export const setPurchaseOrderNoAction = (value: string): POAction => ({type: setPurchaseOrderNo, payload: {value}});
 export const setPORequiredDateAction = (value: string): POAction => ({type: setSelectedDate, payload: {value}});
@@ -164,7 +164,7 @@ export const setLabelsAction = (lineKey: string, quantities: number[]): POAction
 })
 
 
-export const genLabels = ():POThunkAction =>
+export const genLabelsAction = ():POThunkAction =>
     async (dispatch, getState) => {
         try {
             const state = getState();
@@ -177,19 +177,27 @@ export const genLabels = ():POThunkAction =>
             }
             dispatch({type: genLabelsRequested});
             const rows = detail.filter(row => row.selected && !!row.labelData);
+            let generated = 0;
             for await (const row of rows) {
-                const url = '/api/operations/production/po/labels/CHI/:purchaseOrderNo/:lineKey/gen'
-                    .replace(':purchaseOrderNo', encodeURIComponent(row.PurchaseOrderNo))
-                    .replace(':lineKey', encodeURIComponent(row.LineKey));
-                const data = (row.labelData?.labelQuantities || []).filter(val => !!val && val > 0);
-                await fetchPOST(url, data);
+                if (row.labelData?.labelQuantities.length) {
+                    const url = '/api/operations/production/po/labels/CHI/:purchaseOrderNo/:lineKey/gen'
+                        .replace(':purchaseOrderNo', encodeURIComponent(row.PurchaseOrderNo))
+                        .replace(':lineKey', encodeURIComponent(row.LineKey));
+                    const data = row.labelData.labelQuantities.filter(val => !!val && val > 0);
+                    await fetchPOST(url, data);
+                    generated += data.length;
+                }
             }
             dispatch({type: genLabelsSucceeded});
+            dispatch(addAlertAction({
+                color: 'success',
+                message: `${generated} label${generated === 1 ? '' : 's'} created`,
+                canDismiss: true}));
         } catch(error:unknown) {
             if (error instanceof Error) {
-                console.log("genLabels()", error.message);
+                console.log("genLabelsAction()", error.message);
                 return dispatch({type:genLabelsFailed, payload: {error, context: genLabelsRequested}})
             }
-            console.error("genLabels()", error);
+            console.error("genLabelsAction()", error);
         }
     }

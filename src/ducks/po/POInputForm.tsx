@@ -2,7 +2,7 @@ import React, {ChangeEvent, FormEvent, useEffect, useRef, useState} from "react"
 import {useDispatch, useSelector} from "react-redux";
 import {selectPOLoading, selectPORequiredDate, selectPORequiredDates, selectPurchaseOrderNo} from "./selectors";
 import {Input, SpinnerButton} from "chums-ducks";
-import {fetchPurchaseOrderAction, setPORequiredDateAction, setPurchaseOrderNoAction} from "./actions";
+import {fetchPurchaseOrderAction, genLabelsAction, setPORequiredDateAction, setPurchaseOrderNoAction} from "./actions";
 import GenerateLabelsForm from "./GenerateLabelsForm";
 import LoadPOForm from "./LoadPOForm";
 
@@ -42,6 +42,7 @@ const POInputForm: React.FC = () => {
 
     const genLabelsSubmitHandler = async (ev:FormEvent) => {
         ev.preventDefault();
+        dispatch(genLabelsAction());
     }
 
     return (
