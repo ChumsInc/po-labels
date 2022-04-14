@@ -172,7 +172,8 @@ const requiredDatesReducer = (state: string[] = [], action: POAction): string[] 
     case fetchSucceeded:
         if (payload?.purchaseOrder) {
             const dates: string[] = [];
-            payload.purchaseOrder.detail.forEach(row => {
+            payload.purchaseOrder.detail
+                .forEach(row => {
                 if (!dates.includes(row.RequiredDate)) {
                     dates.push(row.RequiredDate);
                 }

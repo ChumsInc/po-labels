@@ -26,7 +26,7 @@ export const selectPODetail = createSelector(
         return [];
     }
     return po.detail
-        .filter(row => row.ItemType === '1')
+        // .filter(row => row.ItemType === '1')
         .filter(row => row.RequiredDate === date)
         .sort(detailSorter(sort as POSorterProps));
 });

@@ -18,7 +18,7 @@ import LabelTotalInfo from "./LabelTotalInfo";
 
 const tableFields:PODetailField[] = [
     {field: 'selected', title: (<SelectAllCheckbox />),
-        render: (row:PurchaseOrderDetail) => (<SelectForPrintingCheckbox lineKey={row.LineKey} disabled={!row.labelData?.labelQuantities.length} />)},
+        render: (row:PurchaseOrderDetail) => (<SelectForPrintingCheckbox lineKey={row.LineKey} disabled={!row.labelData?.labelQuantities.length || row.ItemType !== '1'} />)},
     {field: 'LineKey', title: 'Line Key', sortable: true},
     {field: 'WarehouseCode', title: 'Warehouse', sortable: true},
     {field: 'ItemCode', title: 'Item', sortable: true},
@@ -26,8 +26,8 @@ const tableFields:PODetailField[] = [
     // {field: 'RequiredDate', title: 'Req. Date', render: (row) => (<LabelDate date={row.RequiredDate} />)},
     {field: 'overstock', title: 'Qty in BTX', render: (row:PurchaseOrderDetail) => (<OverstockInfo overstock={row.overstock} />), sortable: true},
     {field: 'QuantityOrdered', title: 'Ordered', sortable: true, className: 'text-end', render: (row) => (<>{numeral(row.QuantityOrdered).format('0,0')}</>)},
-    {field: 'QuantityOrdered', title: 'Std Qty', render: (row) => (<LabelStandardQtyInput lineKey={row.LineKey} lineQuantity={row.QuantityReceived ? row.QuantityReceived : row.QuantityOrdered}/>)},
-    {field: 'labelData', title: 'Box Labels', render: (row) => (<ItemLabels lineKey={row.LineKey} labelData={row.labelData} quantityOrdered={row.QuantityOrdered} />)},
+    {field: 'QuantityOrdered', title: 'Std Qty', render: (row) => (<LabelStandardQtyInput disabled={row.ItemType !== '1'} lineKey={row.LineKey} lineQuantity={row.QuantityReceived ? row.QuantityReceived : row.QuantityOrdered}/>)},
+    {field: 'labelData', title: 'Box Labels', render: (row) => (<ItemLabels disabled={row.ItemType !== '1'} lineKey={row.LineKey} labelData={row.labelData} quantityOrdered={row.QuantityOrdered} />)},
     {field: 'labelData', title: 'Label Total', render: (row) => (<LabelTotalInfo labelData={row.labelData}/>)},
     {field: 'labelData', title: 'Receipt Date', sortable: true,render: (row) => (<LabelDate date={row.labelData?.ReceiptDate} />)},
     {field: 'QuantityReceived', title: 'Received', sortable: true, className: 'text-end', render: (row) => (<>{numeral(row.QuantityReceived).format('0,0')}</>)},

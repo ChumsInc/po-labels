@@ -6,10 +6,11 @@ import {POLabelRecord} from "./types";
 export interface ItemLabelsProps {
     lineKey: string,
     labelData?: POLabelRecord,
-    quantityOrdered: number
+    quantityOrdered: number,
+    disabled?:boolean,
 }
 
-const ItemLabels: React.FC<ItemLabelsProps> = ({lineKey, labelData, quantityOrdered}) => {
+const ItemLabels: React.FC<ItemLabelsProps> = ({lineKey, labelData, quantityOrdered, disabled}) => {
     const dispatch = useDispatch();
     const {ReceiptDate: receiptDate, labelQuantities: labels = [], saving, changed: saveRequired} = labelData || {};
     const [quantities, setQuantities] = useState([...labels.filter(val => val > 0)]);
@@ -88,8 +89,8 @@ const ItemLabels: React.FC<ItemLabelsProps> = ({lineKey, labelData, quantityOrde
                     </div>
                 ))}
                 <button type="button" className="btn btn-xs btn-outline-primary" onClick={onAddLabel}
-                        disabled={quantities.includes(0)}>+</button>
-                {saveRequired && (<button type="button" className="btn btn-xs btn-outline-success" onClick={saveEntries}>
+                        disabled={quantities.includes(0) || disabled}>+</button>
+                {saveRequired && (<button type="button" disabled={disabled} className="btn btn-xs btn-outline-success" onClick={saveEntries}>
                     <span className="bi-cloud-upload-fill"/>
                 </button>)}
             </div>

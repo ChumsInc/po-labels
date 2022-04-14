@@ -5,9 +5,10 @@ import {saveLabelDistributionAction, setLabelsAction} from "./actions";
 export interface LabelStandardQtyInputProps {
     lineKey: string,
     lineQuantity: number,
+    disabled?: boolean,
 }
 
-const LabelStandardQtyInput:React.FC<LabelStandardQtyInputProps> = ({lineKey, lineQuantity}) => {
+const LabelStandardQtyInput:React.FC<LabelStandardQtyInputProps> = ({lineKey, lineQuantity, disabled}) => {
     const dispatch = useDispatch();
 
     const [quantity, setQuantity] = useState<number>(0);
@@ -37,7 +38,7 @@ const LabelStandardQtyInput:React.FC<LabelStandardQtyInputProps> = ({lineKey, li
         }
     }
 
-    if (!lineKey) {
+    if (!lineKey || disabled) {
         return null;
     }
     return (
