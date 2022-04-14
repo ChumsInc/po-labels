@@ -5,6 +5,7 @@ import {Input, SpinnerButton} from "chums-ducks";
 import {fetchPurchaseOrderAction, genLabelsAction, setPORequiredDateAction, setPurchaseOrderNoAction} from "./actions";
 import GenerateLabelsForm from "./GenerateLabelsForm";
 import LoadPOForm from "./LoadPOForm";
+import ClearLabelsButton from "./ClearLabelsButton";
 
 const POInputForm: React.FC = () => {
     const dispatch = useDispatch();
@@ -58,6 +59,7 @@ const POInputForm: React.FC = () => {
             </div>
             <div className="col" />
 
+            <div className="col-auto"><ClearLabelsButton /></div>
             <div className="col-auto">
                 <GenerateLabelsForm onSubmit={genLabelsSubmitHandler} />
             </div>

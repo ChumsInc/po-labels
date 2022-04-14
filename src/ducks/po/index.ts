@@ -1,7 +1,8 @@
 import {combineReducers} from "redux";
 import {POAction, PurchaseOrder} from "./types";
 import {
-    fetchFailed,
+    clearLabelsSucceeded,
+    fetchFailed, fetchLabelCountSucceeded,
     fetchLabelDistributionFailed,
     fetchLabelDistributionRequested,
     fetchLabelDistributionSucceeded,
@@ -222,6 +223,17 @@ const receiptDateReducer = (state: string = new Date().toISOString(), action: PO
     }
 }
 
+const labelCountReducer = (state:number = 0, action: POAction):number => {
+    const {type, payload} = action;
+    switch (type) {
+    case fetchLabelCountSucceeded:
+    case clearLabelsSucceeded:
+        return payload?.quantity || 0;
+    default:
+        return state;
+    }
+}
+
 export default combineReducers({
     purchaseOrderNo: purchaseOrderNoReducer,
     purchaseOrder: purchaseOrderReducer,
@@ -230,4 +242,5 @@ export default combineReducers({
     selectedDate: selectedDateReducer,
     poLabelsLoading: poLabelsLoadingReducer,
     receiptDate: receiptDateReducer,
+    labelCount: labelCountReducer,
 });

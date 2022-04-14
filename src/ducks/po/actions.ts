@@ -1,6 +1,9 @@
 import {POAction, POLabelRecord, POOverstockRecord, POThunkAction, PurchaseOrder} from "./types";
 import {
-    fetchFailed,
+    clearLabelsFailed,
+    clearLabelsRequested,
+    clearLabelsSucceeded,
+    fetchFailed, fetchLabelCountFailed, fetchLabelCountRequested, fetchLabelCountSucceeded,
     fetchLabelDistributionFailed,
     fetchLabelDistributionRequested,
     fetchLabelDistributionSucceeded,
@@ -8,7 +11,10 @@ import {
     fetchOverstockRequested,
     fetchOverstockSucceeded,
     fetchRequested,
-    fetchSucceeded, genLabelsFailed, genLabelsRequested, genLabelsSucceeded,
+    fetchSucceeded,
+    genLabelsFailed,
+    genLabelsRequested,
+    genLabelsSucceeded,
     saveLabelDistributionFailed,
     saveLabelDistributionRequested,
     saveLabelDistributionSucceeded,
@@ -81,8 +87,8 @@ export const fetchLabelDistributionAction = (): POThunkAction =>
             dispatch({type: fetchLabelDistributionRequested});
             const url = `/api/operations/production/po/labels/CHI/:PurchaseOrderNo`
                 .replace(':PurchaseOrderNo', encodeURIComponent(po.PurchaseOrderNo));
-            const {result} = await fetchJSON<{ result: POLabelRecord[] }>(url);
-            dispatch({type: fetchLabelDistributionSucceeded, payload: {labels: result}});
+            const {result: labels, labels: quantity} = await fetchJSON<{ result: POLabelRecord[], labels: number }>(url);
+            dispatch({type: fetchLabelDistributionSucceeded, payload: {labels, quantity}});
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.log("fetchLabelDistributionAction()", error.message);
@@ -116,11 +122,11 @@ export const saveLabelDistributionAction = (lineKey: string): POThunkAction =>
                 .replace(':LineKey', encodeURIComponent(lineKey));
 
             const data = {labels: row.labelData.labelQuantities.filter(q => q !== 0), date: receiptDate};
-            const {result} = await fetchJSON<{ result: POLabelRecord[] }>(url, {
+            const {result: labels, labels: quantity} = await fetchJSON<{ result: POLabelRecord[], labels: number }>(url, {
                 method: 'post',
                 body: JSON.stringify(data)
             });
-            dispatch({type: saveLabelDistributionSucceeded, payload: {labels: result, lineKey}});
+            dispatch({type: saveLabelDistributionSucceeded, payload: {labels, lineKey, quantity}});
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.log("saveLabelDistributionAction()", error.message);
@@ -164,7 +170,7 @@ export const setLabelsAction = (lineKey: string, quantities: number[]): POAction
 })
 
 
-export const genLabelsAction = ():POThunkAction =>
+export const genLabelsAction = (): POThunkAction =>
     async (dispatch, getState) => {
         try {
             const state = getState();
@@ -189,15 +195,72 @@ export const genLabelsAction = ():POThunkAction =>
                 }
             }
             dispatch({type: genLabelsSucceeded});
+            dispatch(fetchLabelCountAction());
             dispatch(addAlertAction({
+                context: genLabelsRequested,
                 color: 'success',
                 message: `${generated} label${generated === 1 ? '' : 's'} created`,
-                canDismiss: true}));
-        } catch(error:unknown) {
+                canDismiss: true
+            }));
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 console.log("genLabelsAction()", error.message);
-                return dispatch({type:genLabelsFailed, payload: {error, context: genLabelsRequested}})
+                return dispatch({type: genLabelsFailed, payload: {error, context: genLabelsRequested}})
             }
             console.error("genLabelsAction()", error);
+        }
+    }
+export const clearPOLabelsAction = (): POThunkAction =>
+    async (dispatch, getState) => {
+        try {
+            const state = getState();
+            const loading = selectPOLoading(state);
+            const po = selectPurchaseOrder(state);
+            const labelsLoading = selectPOLabelsLoading(state);
+            if (!po || loading || labelsLoading) {
+                return;
+            }
+            dispatch({type: clearLabelsRequested});
+            const url = '/api/operations/production/po/labels/CHI/:purchaseOrderNo'
+                .replace(':purchaseOrderNo', encodeURIComponent(po.PurchaseOrderNo));
+            const {labels} = await fetchJSON(url, {method: 'DELETE'});
+            dispatch({type: clearLabelsSucceeded, payload: {quantity: labels}});
+            dispatch(addAlertAction({
+                context: clearLabelsRequested,
+                color: 'success',
+                message: `All labels for PO ${po.PurchaseOrderNo} have been cleared`,
+                canDismiss: true
+            }));
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.log("clearPOLabelsAction()", error.message);
+                return dispatch({type: clearLabelsFailed, payload: {error, context: clearLabelsRequested}})
+            }
+            console.error("clearPOLabelsAction()", error);
+        }
+
+    }
+
+export const fetchLabelCountAction = (): POThunkAction =>
+    async (dispatch, getState) => {
+        try {
+            const state = getState();
+            const loading = selectPOLoading(state);
+            const po = selectPurchaseOrder(state);
+            const labelsLoading = selectPOLabelsLoading(state);
+            if (!po || loading || labelsLoading) {
+                return;
+            }
+            dispatch({type: fetchLabelCountRequested});
+            const url = '/api/operations/production/po/labels/CHI/:purchaseOrderNo/label-count'
+                .replace(':purchaseOrderNo', encodeURIComponent(po.PurchaseOrderNo));
+            const {labels} = await fetchJSON(url, {cache: 'no-cache'});
+            dispatch({type: fetchLabelCountSucceeded, payload: {quantity: labels}});
+        } catch(error:unknown) {
+            if (error instanceof Error) {
+                console.log("()", error.message);
+                return dispatch({type: fetchLabelCountFailed, payload: {error, context: fetchLabelCountRequested}})
+            }
+            console.error("()", error);
         }
     }

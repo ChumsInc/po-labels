@@ -1,8 +1,8 @@
-import React from 'react';
-import {useSelector} from "react-redux";
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from "react-redux";
 import {selectPODetail, selectPurchaseOrder, tableKey} from "./selectors";
 import numeral from "numeral";
-import {Alert, SortableTable} from "chums-ducks";
+import {Alert, SortableTable, tableAddedAction} from "chums-ducks";
 import LabelDate from "./LabelDate";
 import LabelStandardQtyInput from "./LabelStandardQtyInput";
 import ItemLabels from "./ItemLabels";
@@ -42,8 +42,12 @@ const rowClassName = (row:PurchaseOrderDetail) => {
     }
 }
 const PODetailTable: React.FC = () => {
+    const dispatch = useDispatch();
     const po = useSelector(selectPurchaseOrder);
     const detail = useSelector(selectPODetail);
+    useEffect(() => {
+        dispatch(tableAddedAction({key: tableKey, field: 'LineKey', ascending: true}));
+    }, [])
     if (!po) {
         return null;
     }

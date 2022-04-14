@@ -10,6 +10,7 @@ export interface POPayload extends ActionPayload {
     labels?: POLabelRecord[],
     overstock?: POOverstockRecord[],
     value?: string,
+    quantity?: number,
     lineKey?: string,
     lineKeys?: string[],
     labelQuantities?: number[],

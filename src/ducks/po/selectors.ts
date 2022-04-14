@@ -19,6 +19,8 @@ export const selectPOLoading = (state:RootState) => state.po.poLoading;
 
 export const selectPOLabelsLoading = (state:RootState) => state.po.poLabelsLoading;
 
+export const selectLabelCount = (state:RootState) => state.po.labelCount;
+
 export const selectPODetail = createSelector(
     [selectPORequiredDate, selectPurchaseOrder, selectTableSort(tableKey)],
     (date, po, sort):PurchaseOrderDetail[] => {

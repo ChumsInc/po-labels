@@ -22,6 +22,14 @@ export const genLabelsRequested = 'po/genLabelsRequested';
 export const genLabelsSucceeded = 'po/genLabelsSucceeded';
 export const genLabelsFailed = 'po/genLabelsFailed';
 
+export const clearLabelsRequested = 'po/clearLabelsRequested';
+export const clearLabelsSucceeded = 'po/clearLabelsSucceeded';
+export const clearLabelsFailed = 'po/clearLabelsFailed';
+
+export const fetchLabelCountRequested = 'po/fetchLabelCountRequested';
+export const fetchLabelCountSucceeded = 'po/fetchLabelCountSucceeded';
+export const fetchLabelCountFailed = 'po/fetchLabelCountFailed';
+
 export const setLabelQuantities = 'po/setLabelQuantities';
 
 export const selectForPrinting = 'po/selectForPrinting';
