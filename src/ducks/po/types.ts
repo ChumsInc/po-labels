@@ -85,3 +85,13 @@ export interface LoadPOResponse {
     labels?: number;
     overstock?: POOverstockRecord[];
 }
+
+export interface PODistributionResponse {
+    distribution?: POLabelRecord[];
+    labels?: number;
+}
+
+export interface LoadPODistributionResponse {
+    result: POLabelRecord[];
+    labels: number;
+}
