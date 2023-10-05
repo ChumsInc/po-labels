@@ -2,7 +2,7 @@ import React, {ChangeEvent, FormEvent, useEffect, useRef, useState} from "react"
 import {useDispatch, useSelector} from "react-redux";
 import {selectPOLoading, selectPORequiredDate, selectPORequiredDates, selectPurchaseOrderNo} from "./selectors";
 import {Input, SpinnerButton} from "chums-ducks";
-import {fetchPurchaseOrderAction, genLabelsAction, setPORequiredDateAction, setPurchaseOrderNoAction} from "./actions";
+import {loadPurchaseOrder, genLabelsAction, setPORequiredDate, setPurchaseOrderNo} from "./actions";
 import GenerateLabelsForm from "./GenerateLabelsForm";
 import LoadPOForm from "./LoadPOForm";
 import ClearLabelsButton from "./ClearLabelsButton";
@@ -26,7 +26,7 @@ const POInputForm: React.FC = () => {
     const poChangeHandler = (ev: ChangeEvent<HTMLInputElement>) => setPONo(ev.target.value);
 
     const dateChangeHandler = async (ev: ChangeEvent<HTMLSelectElement>) => {
-        await dispatch(setPORequiredDateAction(ev.target.value));
+        await dispatch(setPORequiredDate(ev.target.value));
         if (ref.current) {
             ref.current.focus();
         }
@@ -34,8 +34,8 @@ const POInputForm: React.FC = () => {
 
     const loadSubmitHandler = async (ev: FormEvent) => {
         ev.preventDefault();
-        dispatch(setPurchaseOrderNoAction(poNo.padStart(7, '0')));
-        await dispatch(fetchPurchaseOrderAction());
+        dispatch(setPurchaseOrderNo(poNo.padStart(7, '0')));
+        await dispatch(loadPurchaseOrder());
         if (ref.current) {
             ref.current.focus();
         }

@@ -2,7 +2,7 @@ import React, {ChangeEvent, FormEvent} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {selectPODetail, selectReceiptDate} from "./selectors";
 import {DateInput, SpinnerButton} from "chums-ducks";
-import {setReceiptDateAction} from "./actions";
+import {setReceiptDate} from "./actions";
 
 export interface GenerateLabelsFormProps {
     onSubmit: (ev:FormEvent) => void,
@@ -18,7 +18,7 @@ const GenerateLabelsForm:React.FC<GenerateLabelsFormProps> = ({onSubmit}) => {
         .reduce((pv, row) => pv + (row.labelData?.labelQuantities || []).length, 0);
 
     const receiptDateChangeHandler = (d:Date|null) => {
-        dispatch(setReceiptDateAction(d ? d.toISOString() : undefined))
+        dispatch(setReceiptDate(d ? d.toISOString() : undefined))
     }
 
     return (

@@ -2,7 +2,7 @@ import React, {ChangeEvent} from 'react';
 import {Select} from "chums-ducks";
 import {useDispatch, useSelector} from "react-redux";
 import {selectPORequiredDate, selectPORequiredDates} from "./selectors";
-import {setPORequiredDateAction} from "./actions";
+import {setPORequiredDate} from "./actions";
 
 const PODateSelect:React.FC = () => {
     const dispatch = useDispatch();
@@ -10,7 +10,7 @@ const PODateSelect:React.FC = () => {
     const selected = useSelector(selectPORequiredDate);
 
     const changeHandler = (ev:ChangeEvent<HTMLSelectElement>) => {
-        dispatch(setPORequiredDateAction(ev.target.value));
+        dispatch(setPORequiredDate(ev.target.value));
     }
     return (
         <Select value={selected} onChange={changeHandler} bsSize="sm" >

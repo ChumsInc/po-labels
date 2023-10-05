@@ -55,8 +55,8 @@ export interface PurchaseOrderDetail {
     CommentText: string,
     WorkOrderNo: string|null,
     ItemBillNumber: string|null,
-    labelData?: POLabelRecord,
-    overstock?: POOverstockRecord,
+    labelData?: POLabelRecord|null,
+    overstock?: POOverstockRecord|null,
     selected?: boolean,
 }
 
@@ -79,3 +79,9 @@ export interface PODetailField extends SortableTableField {
     render?: (row:PurchaseOrderDetail) => ReactElement | Element | string | number,
 }
 
+export interface LoadPOResponse {
+    purchaseOrder: PurchaseOrder|null;
+    distribution?: POLabelRecord[];
+    labels?: number;
+    overstock?: POOverstockRecord[];
+}

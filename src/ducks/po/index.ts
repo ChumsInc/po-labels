@@ -1,5 +1,5 @@
 import {combineReducers} from "redux";
-import {POAction, PurchaseOrder} from "./types";
+import {POAction, PurchaseOrder, PurchaseOrderDetail} from "./types";
 import {
     clearLabelsSucceeded,
     fetchFailed, fetchLabelCountSucceeded,
@@ -12,17 +12,70 @@ import {
     saveLabelDistributionRequested, saveLabelDistributionSucceeded,
     selectForPrinting,
     setLabelQuantities,
-    setPurchaseOrderNo,
-    setReceiptDate,
-    setSelectedDate
 } from "./actionTypes";
 import {defaultDetailSorter} from "./utils";
+import {createReducer} from "@reduxjs/toolkit";
+import {loadPurchaseOrder, setPORequiredDate, setPurchaseOrderNo, setReceiptDate} from "./actions";
+
+export interface POState {
+    purchaseOrderNo: string;
+    purchaseOrder: PurchaseOrder | null;
+    poLoading: boolean;
+    requiredDates: string[];
+    selectedDate: string;
+    receiptDate: string;
+    labelCount: number;
+}
+
+export const initialState:POState = {
+    purchaseOrderNo: '',
+    purchaseOrder: null,
+    poLoading: false,
+    requiredDates: [],
+    selectedDate: '',
+    receiptDate: '',
+    labelCount: 0,
+}
+
+const poReducer = createReducer(initialState, (builder) => {
+    builder
+        .addCase(setPurchaseOrderNo, (state, action) => {
+            state.purchaseOrderNo = action.payload;
+        })
+        .addCase(setPORequiredDate, (state, action) => {
+            state.selectedDate = action.payload;
+        })
+        .addCase(setReceiptDate, (state, action) => {
+            state.receiptDate = action.payload;
+        })
+        .addCase(loadPurchaseOrder.pending, (state, action) => {
+            state.purchaseOrderNo = action.meta.arg;
+            state.poLoading = true;
+        })
+        .addCase(loadPurchaseOrder.fulfilled, (state, action) => {
+            state.poLoading = false;
+            state.purchaseOrder = action.payload?.purchaseOrder ?? null;
+            state.requiredDates = [];
+            if (action.payload?.purchaseOrder) {
+                const dates:string[] = [];
+                action.payload.purchaseOrder.detail
+                    .forEach(row => {
+                        if (!dates.includes(row.RequiredDate)) {
+                            dates.push(row.RequiredDate);
+                        }
+                    });
+                state.requiredDates = dates.sort();
+            }
+        })
+        .addCase(loadPurchaseOrder.rejected, (state) => {
+            state.poLoading = false;
+        })
+});
+export default poReducer;
 
 const purchaseOrderNoReducer = (state: string = '', action: POAction): string => {
     const {type, payload} = action;
     switch (type) {
-    case setPurchaseOrderNo:
-        return payload?.value || '';
     case fetchSucceeded:
         return payload?.purchaseOrder?.PurchaseOrderNo || '';
     default:
@@ -46,17 +99,6 @@ const purchaseOrderReducer = (state: PurchaseOrder | null = null, action: POActi
                 row.labelData = labelData;
                 return row;
             }).sort(defaultDetailSorter);
-            return {...state, detail};
-        }
-        return state;
-    case fetchOverstockSucceeded:
-        if (state && payload?.overstock) {
-            const overstock = payload.overstock;
-            const detail = state.detail.map(row => {
-                const [os = undefined] = overstock.filter(osRow => osRow.LineKey === row.LineKey);
-                row.overstock = os;
-                return row;
-            });
             return {...state, detail};
         }
         return state;
@@ -206,8 +248,6 @@ const selectedDateReducer = (state: string = '', action: POAction): string => {
             }
         }
         return '';
-    case setSelectedDate:
-        return payload?.value || '';
     default:
         return state;
     }
@@ -234,13 +274,13 @@ const labelCountReducer = (state:number = 0, action: POAction):number => {
     }
 }
 
-export default combineReducers({
-    purchaseOrderNo: purchaseOrderNoReducer,
-    purchaseOrder: purchaseOrderReducer,
-    poLoading: poLoadingReducer,
-    requiredDates: requiredDatesReducer,
-    selectedDate: selectedDateReducer,
-    poLabelsLoading: poLabelsLoadingReducer,
-    receiptDate: receiptDateReducer,
-    labelCount: labelCountReducer,
-});
+// export default combineReducers({
+//     purchaseOrderNo: purchaseOrderNoReducer,
+//     purchaseOrder: purchaseOrderReducer,
+//     poLoading: poLoadingReducer,
+//     requiredDates: requiredDatesReducer,
+//     selectedDate: selectedDateReducer,
+//     poLabelsLoading: poLabelsLoadingReducer,
+//     receiptDate: receiptDateReducer,
+//     labelCount: labelCountReducer,
+// });

@@ -1,8 +1,7 @@
-import {RootState} from "../index";
+import {RootState} from "../../app/configureStore";
 import {createSelector} from "reselect";
 import {defaultDetailSorter, detailSorter} from "./utils";
 import {POSorterProps, PurchaseOrderDetail} from "./types";
-import {selectTableSort} from "chums-ducks";
 
 export const tableKey = 'po-detail';
 

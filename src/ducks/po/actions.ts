@@ -1,4 +1,4 @@
-import {POAction, POLabelRecord, POOverstockRecord, POThunkAction, PurchaseOrder} from "./types";
+import {LoadPOResponse, POAction, POLabelRecord, POOverstockRecord, POThunkAction, PurchaseOrder} from "./types";
 import {
     clearLabelsFailed,
     clearLabelsRequested,
@@ -20,9 +20,6 @@ import {
     saveLabelDistributionSucceeded,
     selectForPrinting,
     setLabelQuantities,
-    setPurchaseOrderNo,
-    setReceiptDate,
-    setSelectedDate
 } from "./actionTypes";
 import {
     selectPODetail,
@@ -33,11 +30,26 @@ import {
     selectReceiptDate
 } from "./selectors";
 import {addAlertAction, dismissContextAlert, fetchJSON, fetchPOST} from "chums-ducks";
+import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
+import {RootState} from "../../app/configureStore";
+import {fetchPurchaseOrder} from "./api";
 
-export const setPurchaseOrderNoAction = (value: string): POAction => ({type: setPurchaseOrderNo, payload: {value}});
-export const setPORequiredDateAction = (value: string): POAction => ({type: setSelectedDate, payload: {value}});
+export const setPurchaseOrderNo = createAction<string>('po/setPurchaseOrderNo');
+export const setPORequiredDate = createAction<string>('po/setPORequiredDate');
+export const setReceiptDate = createAction<string>('po/setReceiptDate');
 
-export const setReceiptDateAction = (value?: string): POAction => ({type: setReceiptDate, payload: {value}});
+export const loadPurchaseOrder = createAsyncThunk<LoadPOResponse|null, string>(
+    'po/loadPurchaseOrder',
+    async (arg) => {
+        return await fetchPurchaseOrder(arg);
+    },
+    {
+        condition: (arg, {getState}) => {
+            const state = getState() as RootState;
+            return !selectPOLoading(state);
+        }
+    }
+)
 
 export const selectForPrintingAction = (lineKey: string, selected: boolean): POAction => ({
     type: selectForPrinting,
@@ -48,7 +60,8 @@ export const selectAllForPrintingAction = (lineKeys: string[], selected: boolean
     payload: {lineKeys, selected}
 })
 
-export const fetchPurchaseOrderAction = (): POThunkAction =>
+
+export const _loadPurchaseOrder = (): POThunkAction =>
     async (dispatch, getState) => {
         try {
             const state = getState();
