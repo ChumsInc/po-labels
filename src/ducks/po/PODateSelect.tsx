@@ -1,11 +1,12 @@
 import React, {ChangeEvent} from 'react';
-import {Select} from "chums-ducks";
+import {Select} from "chums-components";
 import {useDispatch, useSelector} from "react-redux";
 import {selectPORequiredDate, selectPORequiredDates} from "./selectors";
 import {setPORequiredDate} from "./actions";
+import {useAppDispatch} from "../../app/configureStore";
 
 const PODateSelect:React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const dates = useSelector(selectPORequiredDates);
     const selected = useSelector(selectPORequiredDate);
 

@@ -1,7 +1,8 @@
 import {POSorterProps, PurchaseOrderDetail} from "./types";
+import {SortProps} from "chums-components";
 
 
-export const detailSorter = ({field, ascending}:POSorterProps) => (a:PurchaseOrderDetail, b:PurchaseOrderDetail) => {
+export const detailSorter = ({field, ascending}:SortProps<PurchaseOrderDetail>) => (a:PurchaseOrderDetail, b:PurchaseOrderDetail) => {
     switch (field) {
     case 'QuantityOrdered':
     case 'QuantityReceived':

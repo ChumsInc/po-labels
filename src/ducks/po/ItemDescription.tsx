@@ -1,6 +1,6 @@
 import React from 'react';
 import {PurchaseOrderDetail} from "./types";
-import {Badge} from "chums-ducks";
+import {Badge} from "chums-components";
 
 export interface ItemDescriptionProps {
    row:PurchaseOrderDetail,

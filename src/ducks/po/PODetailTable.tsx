@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {selectPODetail, selectPurchaseOrder, tableKey} from "./selectors";
+import {selectDetailSort, selectPODetail, selectPurchaseOrder, tableKey} from "./selectors";
 import numeral from "numeral";
-import {Alert, SortableTable, tableAddedAction} from "chums-ducks";
+import {Alert, SortableTable, SortProps} from "chums-components";
 import LabelDate from "./LabelDate";
 import LabelStandardQtyInput from "./LabelStandardQtyInput";
 import ItemLabels from "./ItemLabels";
@@ -13,6 +13,8 @@ import SelectForPrintingCheckbox from "./SelectForPrintingCheckbox";
 import SelectAllCheckbox from "./SelectAllCheckbox";
 import ItemDescription from "./ItemDescription";
 import LabelTotalInfo from "./LabelTotalInfo";
+import {useAppDispatch} from "../../app/configureStore";
+import {setDetailSort} from "./actions";
 
 //@TODO: need to add BTX items,
 
@@ -42,18 +44,19 @@ const rowClassName = (row:PurchaseOrderDetail) => {
     }
 }
 const PODetailTable: React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const po = useSelector(selectPurchaseOrder);
     const detail = useSelector(selectPODetail);
-    useEffect(() => {
-        dispatch(tableAddedAction({key: tableKey, field: 'LineKey', ascending: true}));
-    }, [])
-    if (!po) {
-        return null;
+    const sort = useSelector(selectDetailSort);
+
+    const onChangeSort = (sort:SortProps<PurchaseOrderDetail>) => {
+        dispatch(setDetailSort(sort));
     }
+
     return (
         <>
-            <SortableTable tableKey={tableKey} className="table-sticky" keyField="LineKey" fields={tableFields} data={detail} rowClassName={rowClassName} />
+            <SortableTable currentSort={sort} onChangeSort={setDetailSort}
+                           className="table-sticky" keyField="LineKey" fields={tableFields} data={detail} rowClassName={rowClassName} />
             {!detail.length && (
                 <Alert color="info">Select PO Required Date.</Alert>
             )}

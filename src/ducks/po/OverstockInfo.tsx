@@ -1,6 +1,6 @@
 import React from 'react';
 import {POOverstockRecord} from "./types";
-import {Badge} from "chums-ducks";
+import {Badge} from "chums-components";
 import numeral from "numeral";
 
 export interface OverstockInfoProps {

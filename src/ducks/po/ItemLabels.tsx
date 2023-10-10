@@ -2,16 +2,17 @@ import React, {ChangeEvent, createRef, useEffect, useRef, useState} from 'react'
 import {useDispatch} from "react-redux";
 import {saveLabelDistributionAction, setLabelsAction} from "./actions";
 import {POLabelRecord} from "./types";
+import {useAppDispatch} from "../../app/configureStore";
 
 export interface ItemLabelsProps {
     lineKey: string,
-    labelData?: POLabelRecord,
+    labelData?: POLabelRecord|null,
     quantityOrdered: number,
     disabled?:boolean,
 }
 
 const ItemLabels: React.FC<ItemLabelsProps> = ({lineKey, labelData, quantityOrdered, disabled}) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const {ReceiptDate: receiptDate, labelQuantities: labels = [], saving, changed: saveRequired} = labelData || {};
     const [quantities, setQuantities] = useState([...labels.filter(val => val > 0)]);
     const [changed, setChanged] = useState(false);

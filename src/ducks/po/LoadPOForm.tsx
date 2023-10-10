@@ -1,7 +1,7 @@
 import React, {ChangeEvent, FormEvent, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {selectPOLoading, selectPurchaseOrderNo} from "./selectors";
-import {Input, SpinnerButton} from "chums-ducks";
+import {Input, SpinnerButton} from "chums-components";
 
 export interface POInputFormProps {
     value: string,

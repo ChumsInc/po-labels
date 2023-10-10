@@ -3,7 +3,7 @@ import {POLabelRecord} from "./types";
 import classNames from "classnames";
 
 export interface LabelTotalInfoProps {
-    labelData?: POLabelRecord,
+    labelData?: POLabelRecord|null,
 }
 const LabelTotalInfo:React.FC<LabelTotalInfoProps> = ({labelData}) => {
     if (!labelData) {

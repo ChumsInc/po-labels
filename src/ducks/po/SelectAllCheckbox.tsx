@@ -4,6 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {selectPODetail} from "./selectors";
 import {selectAllForPrintingAction, selectForPrintingAction} from "./actions";
 import {PurchaseOrderDetail} from "./types";
+import {useAppDispatch} from "../../app/configureStore";
 
 function isIndeterminate(detail: PurchaseOrderDetail[]) {
     const qtyChecked = detail.filter(row => row.selected).length;
@@ -11,7 +12,7 @@ function isIndeterminate(detail: PurchaseOrderDetail[]) {
 }
 
 const SelectAllCheckbox: React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const detail = useSelector(selectPODetail);
     const [qtyChecked, setQtyChecked] = useState(detail.filter(row => row.selected).length);
     const [checked, setChecked] = useState<boolean>(qtyChecked > 0 && qtyChecked === detail.length);

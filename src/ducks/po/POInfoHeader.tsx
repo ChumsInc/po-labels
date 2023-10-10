@@ -1,7 +1,7 @@
 import React from 'react';
 import {useSelector} from "react-redux";
 import {selectPOLoading, selectPurchaseOrder} from "./selectors";
-import {Alert, LoadingProgressBar} from "chums-ducks";
+import {Alert, LoadingProgressBar} from "chums-components";
 
 const POInfoHeader:React.FC = () => {
     const loading = useSelector(selectPOLoading);

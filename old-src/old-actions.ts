@@ -1,12 +1,12 @@
 import {
-    GetStateFn,
     LoadPOResponse,
+    POAction,
     POLabelRecord,
     POOverstockRecord,
-    PurchaseOrder, PurchaseOrderDetail,
-    ToggleCheckedLine,
-    LabelDistribution, PODistributionResponse, LabelDistributionResponse
-} from "./types";
+    POThunkAction,
+    PurchaseOrder,
+    ToggleCheckedLine
+} from "../src/ducks/po/types";
 import {
     clearLabelsFailed,
     clearLabelsRequested,
@@ -28,8 +28,7 @@ import {
     saveLabelDistributionSucceeded,
     selectForPrinting,
     setLabelQuantities,
-
-} from "./actionTypes";
+} from "../src/ducks/po/actionTypes";
 import {
     selectPODetail,
     selectPOLabelsLoading,
@@ -37,17 +36,15 @@ import {
     selectPurchaseOrder,
     selectPurchaseOrderNo,
     selectReceiptDate
-} from "./selectors";
-import {fetchJSON, fetchPOST, SortProps} from "chums-components";
+} from "../src/ducks/po/selectors";
+import {addAlertAction, dismissContextAlert, fetchJSON, fetchPOST} from "chums-ducks";
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
-import {AppDispatch, RootState} from "../../app/configureStore";
-import {fetchPurchaseOrder, postLabelDistribution, PostLabelDistributionArg} from "./api";
+import {RootState} from "../src/app/configureStore";
+import {fetchPurchaseOrder} from "../src/ducks/po/api";
 
 export const setPurchaseOrderNo = createAction<string>('po/setPurchaseOrderNo');
 export const setPORequiredDate = createAction<string>('po/setPORequiredDate');
 export const setReceiptDate = createAction<string>('po/setReceiptDate');
-
-export const setDetailSort = createAction<SortProps<PurchaseOrderDetail>>('po/setDetailSort');
 
 export const loadPurchaseOrder = createAsyncThunk<LoadPOResponse|null, string>(
     'po/loadPurchaseOrder',
@@ -62,42 +59,73 @@ export const loadPurchaseOrder = createAsyncThunk<LoadPOResponse|null, string>(
     }
 )
 
-
-
-export const saveLabelDistribution = createAsyncThunk<PODistributionResponse|null, PurchaseOrderDetail>(
-    'po/saveLabelDistribution',
-    async (arg, {getState}) => {
-        const state = getState() as RootState;
-        const receiptDate = selectReceiptDate(state);
-        return await postLabelDistribution({line: arg, receiptDate});
-    },
-    {
-        condition: (arg, {getState}) => {
-            const state = getState() as RootState;
-            return !!selectReceiptDate(state) && arg.ItemType === '1';
-        }
-    }
-)
-
-
-
 export const toggleCheckedLine = createAction<ToggleCheckedLine>('po/toggleCheckedLine');
 
-export const selectForPrintingAction = (lineKey: string, selected: boolean) => ({
+export const selectForPrintingAction = (lineKey: string, selected: boolean): POAction => ({
     type: selectForPrinting,
     payload: {lineKey, selected}
 })
-export const selectAllForPrintingAction = (lineKeys: string[], selected: boolean) => ({
+export const selectAllForPrintingAction = (lineKeys: string[], selected: boolean): POAction => ({
     type: selectForPrinting,
     payload: {lineKeys, selected}
 })
 
 
+export const _loadPurchaseOrder = (): POThunkAction =>
+    async (dispatch, getState) => {
+        try {
+            const state = getState();
+            const po = selectPurchaseOrderNo(state);
+            const loading = selectPOLoading(state);
+            if (loading || !po) {
+                return;
+            }
+            dispatch({type: fetchRequested});
+            const url = '/node-sage/api/CHI/po/:purchaseOrderNo'
+                .replace(':purchaseOrderNo', encodeURIComponent(po));
+            const {purchaseOrder} = await fetchJSON<{ purchaseOrder: PurchaseOrder }>(url);
+            dispatch({type: fetchSucceeded, payload: {purchaseOrder}});
+            dispatch(dismissContextAlert(fetchRequested));
+            await dispatch(fetchLabelDistributionAction());
+            await dispatch(fetchPOOverstockAction());
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.log("fetchPurchaseOrderAction()", error.message);
+                return dispatch({type: fetchFailed, payload: {error, context: fetchRequested}});
+            }
+            console.error("fetchPurchaseOrderAction()", error);
+        }
+    }
 
+export const fetchLabelDistributionAction = (): POThunkAction =>
+    async (dispatch, getState) => {
+        try {
+            const state = getState();
+            const po = selectPurchaseOrder(state);
+            const loading = selectPOLoading(state);
+            const labelsLoading = selectPOLabelsLoading(state);
+            if (!po || loading || labelsLoading) {
+                return;
+            }
+            dispatch({type: fetchLabelDistributionRequested});
+            const url = `/api/operations/production/po/labels/CHI/:PurchaseOrderNo`
+                .replace(':PurchaseOrderNo', encodeURIComponent(po.PurchaseOrderNo));
+            const {result: labels, labels: quantity} = await fetchJSON<{ result: POLabelRecord[], labels: number }>(url);
+            dispatch({type: fetchLabelDistributionSucceeded, payload: {labels, quantity}});
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.log("fetchLabelDistributionAction()", error.message);
+                return dispatch({
+                    type: fetchLabelDistributionFailed,
+                    payload: {error, context: fetchLabelDistributionRequested}
+                })
+            }
+            console.error("fetchLabelDistributionAction()", error);
+        }
+    }
 
-
-export const saveLabelDistributionAction = (lineKey: string) =>
-    async (dispatch:AppDispatch, getState:GetStateFn) => {
+export const saveLabelDistributionAction = (lineKey: string): POThunkAction =>
+    async (dispatch, getState) => {
         try {
             const state = getState();
             const po = selectPurchaseOrder(state);
@@ -135,15 +163,38 @@ export const saveLabelDistributionAction = (lineKey: string) =>
     }
 
 
+export const fetchPOOverstockAction = (): POThunkAction =>
+    async (dispatch, getState) => {
+        try {
+            const state = getState();
+            const po = selectPurchaseOrder(state);
+            const loading = selectPOLoading(state);
+            const labelsLoading = selectPOLabelsLoading(state);
+            if (!po || loading || labelsLoading) {
+                return;
+            }
+            dispatch({type: fetchOverstockRequested});
+            const url = `/api/operations/production/po/overstock/CHI/:PurchaseOrderNo`
+                .replace(':PurchaseOrderNo', encodeURIComponent(po.PurchaseOrderNo));
+            const {overstock} = await fetchJSON<{ overstock: POOverstockRecord[] }>(url);
+            dispatch({type: fetchOverstockSucceeded, payload: {overstock}});
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.log("fetchPOOverstockAction()", error.message);
+                return dispatch({type: fetchOverstockFailed, payload: {error, context: fetchOverstockRequested}})
+            }
+            console.error("fetchPOOverstockAction()", error);
+        }
+    }
 
-export const setLabelsAction = (lineKey: string, quantities: number[]) => ({
+export const setLabelsAction = (lineKey: string, quantities: number[]): POAction => ({
     type: setLabelQuantities,
     payload: {lineKey, labelQuantities: quantities}
 })
 
 
-export const genLabelsAction = () =>
-    async (dispatch:AppDispatch, getState:GetStateFn) => {
+export const genLabelsAction = (): POThunkAction =>
+    async (dispatch, getState) => {
         try {
             const state = getState();
             const po = selectPurchaseOrder(state);
@@ -168,12 +219,12 @@ export const genLabelsAction = () =>
             }
             dispatch({type: genLabelsSucceeded});
             dispatch(fetchLabelCountAction());
-            // dispatch(addAlertAction({
-            //     context: genLabelsRequested,
-            //     color: 'success',
-            //     message: `${generated} label${generated === 1 ? '' : 's'} created`,
-            //     canDismiss: true
-            // }));
+            dispatch(addAlertAction({
+                context: genLabelsRequested,
+                color: 'success',
+                message: `${generated} label${generated === 1 ? '' : 's'} created`,
+                canDismiss: true
+            }));
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.log("genLabelsAction()", error.message);
@@ -182,8 +233,8 @@ export const genLabelsAction = () =>
             console.error("genLabelsAction()", error);
         }
     }
-export const clearPOLabelsAction = () =>
-    async (dispatch:AppDispatch, getState:GetStateFn) => {
+export const clearPOLabelsAction = (): POThunkAction =>
+    async (dispatch, getState) => {
         try {
             const state = getState();
             const loading = selectPOLoading(state);
@@ -197,12 +248,12 @@ export const clearPOLabelsAction = () =>
                 .replace(':purchaseOrderNo', encodeURIComponent(po.PurchaseOrderNo));
             const {labels} = await fetchJSON(url, {method: 'DELETE'});
             dispatch({type: clearLabelsSucceeded, payload: {quantity: labels}});
-            // dispatch(addAlertAction({
-            //     context: clearLabelsRequested,
-            //     color: 'success',
-            //     message: `All labels for PO ${po.PurchaseOrderNo} have been cleared`,
-            //     canDismiss: true
-            // }));
+            dispatch(addAlertAction({
+                context: clearLabelsRequested,
+                color: 'success',
+                message: `All labels for PO ${po.PurchaseOrderNo} have been cleared`,
+                canDismiss: true
+            }));
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.log("clearPOLabelsAction()", error.message);
@@ -213,8 +264,8 @@ export const clearPOLabelsAction = () =>
 
     }
 
-export const fetchLabelCountAction = () =>
-    async (dispatch:AppDispatch, getState:GetStateFn) => {
+export const fetchLabelCountAction = (): POThunkAction =>
+    async (dispatch, getState) => {
         try {
             const state = getState();
             const loading = selectPOLoading(state);

@@ -2,10 +2,11 @@ import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {selectLabelCount, selectPOLabelsLoading, selectPOLoading} from "./selectors";
 import {clearPOLabelsAction, fetchLabelCountAction} from "./actions";
+import {useAppDispatch} from "../../app/configureStore";
 
 
 const ClearLabelsButton:React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const loading = useSelector(selectPOLoading);
     const labelsLoading = useSelector(selectPOLabelsLoading);
     const labelCount = useSelector(selectLabelCount);

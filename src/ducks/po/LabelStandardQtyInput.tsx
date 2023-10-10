@@ -1,6 +1,8 @@
 import React, {FormEvent, useState} from 'react';
 import {useDispatch} from "react-redux";
-import {saveLabelDistributionAction, setLabelsAction} from "./actions";
+import {saveLabelDistribution, setLabelsAction} from "./actions";
+import {useAppDispatch} from "../../app/configureStore";
+import {PurchaseOrderDetail} from "./types";
 
 export interface LabelStandardQtyInputProps {
     lineKey: string,
@@ -8,8 +10,8 @@ export interface LabelStandardQtyInputProps {
     disabled?: boolean,
 }
 
-const LabelStandardQtyInput:React.FC<LabelStandardQtyInputProps> = ({lineKey, lineQuantity, disabled}) => {
-    const dispatch = useDispatch();
+const LabelStandardQtyInput:React.FC<LabelStandardQtyInputProps> = ({line, lineKey, lineQuantity, disabled}) => {
+    const dispatch = useAppDispatch();
 
     const [quantity, setQuantity] = useState<number>(0);
 
@@ -28,13 +30,13 @@ const LabelStandardQtyInput:React.FC<LabelStandardQtyInputProps> = ({lineKey, li
             labelQuantities.push(quantityAvailable);
         }
         dispatch(setLabelsAction(lineKey, labelQuantities));
-        dispatch(saveLabelDistributionAction(lineKey));
+        dispatch(saveLabelDistribution(line));
     }
 
     const onClearLabels = ()  => {
         if (window.confirm(`Are ytou sure you want to clear labels for line ${lineKey}?`)) {
             dispatch(setLabelsAction(lineKey, []));
-            dispatch(saveLabelDistributionAction(lineKey));
+            dispatch(saveLabelDistribution(line));
         }
     }
 

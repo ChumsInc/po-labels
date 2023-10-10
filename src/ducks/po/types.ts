@@ -1,27 +1,5 @@
-import {ActionInterface, ActionPayload, SortableTableField, SorterProps} from "chums-ducks";
-import {ThunkAction} from "redux-thunk";
-import {RootState} from "../index";
-import {ReactElement} from "react";
-
-
-export interface POPayload extends ActionPayload {
-    purchaseOrder?: PurchaseOrder,
-    lines?: PurchaseOrderDetail[]
-    labels?: POLabelRecord[],
-    overstock?: POOverstockRecord[],
-    value?: string,
-    quantity?: number,
-    lineKey?: string,
-    lineKeys?: string[],
-    labelQuantities?: number[],
-    selected?: boolean,
-}
-
-export interface POAction extends ActionInterface {
-    payload?: POPayload,
-}
-
-export interface POThunkAction extends ThunkAction<any, RootState, unknown, POAction> {}
+import {SortableTableField, SortProps} from 'chums-components'
+import {RootState} from "../../app/configureStore";
 
 export interface POOverstockRecord {
     PurchaseOrderNo: string,
@@ -70,14 +48,9 @@ export interface POLabelRecord {
     saving?: boolean,
 }
 
-export interface POSorterProps extends SorterProps {
-    field: keyof PurchaseOrderDetail,
-}
+export type POSorterProps = SortProps<PODetailField>;
 
-export interface PODetailField extends SortableTableField {
-    field: keyof PurchaseOrderDetail,
-    render?: (row:PurchaseOrderDetail) => ReactElement | Element | string | number,
-}
+export type PODetailField = SortableTableField<PurchaseOrderDetail>;
 
 export interface LoadPOResponse {
     purchaseOrder: PurchaseOrder|null;
@@ -94,4 +67,25 @@ export interface PODistributionResponse {
 export interface LoadPODistributionResponse {
     result: POLabelRecord[];
     labels: number;
+}
+
+export interface ToggleCheckedLine {
+    lineKey: string;
+    checked?: boolean;
+}
+
+export interface LabelDistribution {
+    lineKey: string
+}
+
+export interface LabelDistributionResponse{
+    result: LabelDistribution
+}
+
+
+
+export type GetStateFn = () => RootState;
+
+export interface PODetailMap {
+    [key: string]: PurchaseOrderDetail;
 }
