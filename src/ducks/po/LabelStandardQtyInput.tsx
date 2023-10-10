@@ -5,9 +5,10 @@ import {useAppDispatch} from "../../app/configureStore";
 import {PurchaseOrderDetail} from "./types";
 
 export interface LabelStandardQtyInputProps {
-    lineKey: string,
-    lineQuantity: number,
-    disabled?: boolean,
+    line: PurchaseOrderDetail;
+    lineKey: string;
+    lineQuantity: number;
+    disabled?: boolean;
 }
 
 const LabelStandardQtyInput:React.FC<LabelStandardQtyInputProps> = ({line, lineKey, lineQuantity, disabled}) => {

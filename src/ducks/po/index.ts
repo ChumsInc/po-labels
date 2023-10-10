@@ -15,6 +15,7 @@ import {postLabelDistribution} from "./api";
 export interface POState {
     purchaseOrderNo: string;
     purchaseOrder: PurchaseOrder | null;
+    detailLines: PODetailMap;
     poLoading: boolean;
     requiredDates: string[];
     selectedDate: string;
@@ -26,6 +27,7 @@ export interface POState {
 export const initialState: POState = {
     purchaseOrderNo: '',
     purchaseOrder: null,
+    detailLines: {},
     poLoading: false,
     requiredDates: [],
     selectedDate: '',
@@ -55,8 +57,10 @@ const poReducer = createReducer(initialState, (builder) => {
             state.requiredDates = [];
             if (action.payload?.purchaseOrder) {
                 const dates: string[] = [];
+                state.detailLines = {};
                 action.payload.purchaseOrder.detail
                     .forEach(row => {
+                        state.detailLines[row.LineKey] = row;
                         if (!dates.includes(row.RequiredDate)) {
                             dates.push(row.RequiredDate);
                         }

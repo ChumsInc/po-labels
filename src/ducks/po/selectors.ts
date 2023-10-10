@@ -2,6 +2,7 @@ import {RootState} from "../../app/configureStore";
 import {createSelector} from "@reduxjs/toolkit";
 import {defaultDetailSorter, detailSorter} from "./utils";
 import {POSorterProps, PurchaseOrderDetail} from "./types";
+import {Root} from "react-dom/client";
 
 export const tableKey = 'po-detail';
 
@@ -13,6 +14,7 @@ export const selectPORequiredDate = (state:RootState) => state.po.selectedDate;
 export const selectPORequiredDates = (state:RootState) => state.po.requiredDates;
 
 export const selectPurchaseOrder = (state:RootState) => state.po.purchaseOrder;
+export const selectPurchaseOrderDetail = (state:RootState) => state.po.detailLines;
 
 export const selectPOLoading = (state:RootState) => state.po.poLoading;
 
@@ -33,14 +35,20 @@ export const selectPODetail = createSelector(
         .sort(detailSorter(sort));
 });
 
-export const selectPODetailLine = (lineKey:string) => (state:RootState):PurchaseOrderDetail|null => {
-    const detail = state.po.purchaseOrder?.detail;
-    if (!detail) {
-        return null;
+export const selectPODetailLine = createSelector(
+    [selectPurchaseOrderDetail, (state, lineKey:string) => lineKey],
+    (lines, lineKey) => {
+        return lines[lineKey] ?? null;
     }
-    const [row] = detail.filter(row => row.LineKey === lineKey);
-    return row || null;
-}
+)
+// export const selectPODetailLine = (lineKey:string) => (state:RootState):PurchaseOrderDetail|null => {
+//     const detail = state.po.purchaseOrder?.detail;
+//     if (!detail) {
+//         return null;
+//     }
+//     const [row] = detail.filter(row => row.LineKey === lineKey);
+//     return row || null;
+// }
 
 export const selectSelectedLineKeys = createSelector([selectPurchaseOrder], (po) => {
     if (!po) {
